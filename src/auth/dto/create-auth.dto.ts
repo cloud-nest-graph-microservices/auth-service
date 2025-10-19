@@ -8,6 +8,9 @@ export class CreateAuthDto {
   @IsString()
   readonly username: string;
 
+  @IsEmail()
+  email: string;
+
 
   @ApiProperty()
   @IsString()

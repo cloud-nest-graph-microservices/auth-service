@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
-import { config } from './common/config.js';
 import { json } from 'express';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -27,7 +26,7 @@ async function bootstrap() {
 
   app.use(json({ limit: '5mb' }));
   app.enableShutdownHooks();
-  await app.listen(process.env.PORT);
+  await app.listen(process.env.PORT?? 3000);
   console.log(`Auth service running`);
 }
 bootstrap();

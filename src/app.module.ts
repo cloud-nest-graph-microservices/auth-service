@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { KeycloakConnectModule } from 'nest-keycloak-connect'
-import { APP_GUARD } from '@nestjs/core';
-import { ResourceGuard, RoleGuard, AuthGuard } from 'nest-keycloak-connect';
 import { AuthModule } from './auth/auth.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 
 @Module({
@@ -20,6 +19,17 @@ import { AuthModule } from './auth/auth.module';
         bearerOnly: true,
       }),
     }),
+
+    ClientsModule.register([
+      {
+        name: 'GATEWAY_CLIENT',
+        transport: Transport.TCP,
+        options: {
+          host: process.env.GATEWAY_SERVICE_HOST || '127.0.0.1',
+          port: parseInt(process.env.GATEWAY_SERVICE_PORT || '4000', 10),
+        },
+      },
+    ]),
     AuthModule,
   ],
   providers: [

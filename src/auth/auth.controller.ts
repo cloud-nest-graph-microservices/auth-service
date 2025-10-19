@@ -3,11 +3,22 @@ import { AuthService } from './auth.service';
 import { AuthGuard, RoleGuard, ResourceGuard, Roles } from 'nest-keycloak-connect';
 import { CreateAuthDto } from './dto/create-auth.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { MessagePattern } from '@nestjs/microservices';
 
 @Controller('auth')
 @ApiTags('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @MessagePattern({ cmd: 'signup' })
+  async signup(@Body() body: CreateAuthDto) {
+    try {
+      const result = await this.authService.signup(body);
+      return result;
+    } catch (err) {
+      throw new HttpException(err.message || 'Signup failed', err.status || HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
   @Post('login')
   async login(@Body() body: any) {
@@ -15,17 +26,6 @@ export class AuthController {
     return response;
   }
 
-   @Post('validate-token')
-  async validateToken(@Body('token') token: string) {
-    if (!token) {
-      throw new HttpException('Token is required', HttpStatus.BAD_REQUEST);
-    }
-    const isValid = await this.authService.validateToken(token);
-    if (!isValid) {
-      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
-    }
-    return { valid: true };
-  }
 
   @Post('refresh')
   async refresh(@Body('refreshToken') refreshToken: string) {
